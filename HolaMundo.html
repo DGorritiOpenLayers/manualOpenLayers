@@ -1,18 +1,30 @@
 <html>
 <head>
+	<link type="text/css" rel="stylesheet" href="http://www.openlayers.org/api/theme/default/style.css"/>
 	<script src="http://www.openlayers.org/api/OpenLayers.js"></script>
 	<script type="text/javascript">
 
 	var map, wmsLayer;
+	var controls = [];
 
 	function init(){
 
-		map = new OpenLayers.Map('map');
+		controls.push(new OpenLayers.Control.Attribution());
+		controls.push(new OpenLayers.Control.PanZoom());
+		controls.push(new OpenLayers.Control.Navigation());
+		controls.push(new OpenLayers.Control.KeyboardDefaults());
+		controls.push(new OpenLayers.Control.Scale());
+
+		map = new OpenLayers.Map('map',{controls:[]});
+
 		wmsLayer = new OpenLayers.Layer.WMS("Mapa Base",
 			"http://www.ign.es/wms-inspire/ign-base?",
 			{layers: 'IGNBaseTodo', projection: 'EPSG:4230'} );
 
 		map.addLayer(wmsLayer);
+
+		map.addControls(controls);
+
 		map.zoomToMaxExtent();
 
 	}
@@ -22,6 +34,7 @@
 <body onload = "init()">
 
 	<h1>HOLA MUNDO</h1>
+	<div id="panel"></div>
 	<div id="map" style="width: 600pxM height: 300px"></div>
 
 </body>
