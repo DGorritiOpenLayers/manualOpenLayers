@@ -1,0 +1,96 @@
+<html>
+<head>
+	<link type="text/css" rel="stylesheet" href="http://www.openlayers.org/api/theme/default/style.css"/>
+	<script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+	<style type="text/css">
+	#map { 
+		width: 500px; 
+		height: 450px; 
+		border: 
+		solid 1px #444444; 
+		font-family: Tahoma, sans-serif; 
+		font-size: 110%; 
+		font-weight: bold; 
+		color: #0033f0; 
+		text-align: center;
+	}
+	.getScaleItemInactive {
+		float: left; 
+		width: 32px; 
+		height:32px; 
+		margin: 2px; 
+		border: solid 1px #333333; 
+		border-bottom: solid 2px #333333; 
+		border-right: solid 2px #333333; 
+		background-color: #0069b4; 
+		background-repeat: no-repeat; 
+		background-position: center; 
+		cursor: pointer;
+	}	
+	</style>
+	<script type="text/javascript">
+
+	var map, wmsLayer;
+	var controls = [];
+
+	function init(){
+
+		addControls();
+
+		map = new OpenLayers.Map('map',{controls:[]});
+
+		wmsLayer = new OpenLayers.Layer.WMS("Mapa Base",
+			"http://www.ign.es/wms-inspire/ign-base?",
+			{layers: 'IGNBaseTodo', projection: 'EPSG:4230'} );
+
+		map.addLayer(wmsLayer);
+
+		map.addControls(controls);
+
+		map.zoomToMaxExtent();
+
+		map.events.register("mousemove",map,mouseMoveHandler);
+		map.events.register("mouseover",map,mouseOverHandler);
+		map.events.register("mouseout",map,mouseOutHandler);
+
+	}
+
+	function addControls(){
+
+		controls.push(new OpenLayers.Control.Attribution());
+		controls.push(new OpenLayers.Control.PanZoom());
+		controls.push(new OpenLayers.Control.Navigation());
+		controls.push(new OpenLayers.Control.KeyboardDefaults());
+		controls.push(new OpenLayers.Control.Scale());
+
+	}
+
+	function mouseMoveHandler(evt) {
+		var el1 = document.getElementById("txt");
+		var el2 = document.getElementById("txt2");
+		var pos=this.events.getMousePosition(evt);
+		el1.value=pos;
+		el2.value=map.getLonLatFromPixel(pos);
+	}
+
+	function mouseOverHandler(evt) {
+		document.getElementById("txt3").style.backgroundColor = "green";	
+	}
+
+	function mouseOutHandler(evt) {
+		document.getElementById("txt3").style.backgroundColor = "red";
+	}
+
+	</script>
+</head>
+<body onload = "init()">
+
+	<h1>HOLA MUNDO</h1>
+	<div id="map"></div>
+	<input type="text" size="31" value="no set" id="txt"/>
+	<input type="text" size="31" value="no set" id="txt2"/>
+	<br />
+	<input type="text" size="67" id="txt3"/>
+
+</body>
+</html>
