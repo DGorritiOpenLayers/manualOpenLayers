@@ -1,0 +1,94 @@
+<html>
+<head>
+	<link type="text/css" rel="stylesheet" href="http://www.openlayers.org/api/theme/default/style.css"/>
+	<script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+	<style type="text/css">
+	#map { 
+		width: 500px; 
+		height: 450px; 
+		border: 
+		solid 1px #444444; 
+		font-family: Tahoma, sans-serif; 
+		font-size: 110%; 
+		font-weight: bold; 
+		color: #0033f0; 
+		text-align: center;
+	}
+	.myPanel {
+		position: relative; 
+		left: 103px; 
+		height: 39px; 
+		width: 39px; 
+		margin: 6px; 
+		border: solid 2px blue; 
+		background-color: #00d0ff; 
+	}
+	.getScaleItemInactive {
+		float: left; 
+		width: 32px; 
+		height:32px; 
+		margin: 2px; 
+		border: solid 1px #333333; 
+		border-bottom: solid 2px #333333; 
+		border-right: solid 2px #333333; 
+		background-color: #0069b4; 
+		background-repeat: no-repeat; 
+		background-position: center; 
+		cursor: pointer;
+	}	
+	</style>
+
+	<script type="text/javascript">
+
+	var map, wmsLayer, panel, btnGetScale;
+	var controls = [], btnControls = [];
+
+	function init(){
+
+		var el = OpenLayers.Util.getElement('panel');
+
+		panel = new OpenLayers.Control.Panel({'div':el});
+
+		btnGetScale = new OpenLayers.Control.Button({
+			displayClass: "getScale", 
+			trigger: getScale
+		});
+
+		btnControls.push(btnGetScale);
+
+		panel.addControls(btnControls);
+
+		controls.push(new OpenLayers.Control.Attribution());
+		controls.push(new OpenLayers.Control.PanZoom());
+		controls.push(new OpenLayers.Control.Navigation());
+		controls.push(new OpenLayers.Control.KeyboardDefaults());
+		controls.push(new OpenLayers.Control.Scale());
+		controls.push(panel);
+
+		map = new OpenLayers.Map('map',{controls:[]});
+
+		wmsLayer = new OpenLayers.Layer.WMS("Mapa Base",
+			"http://www.ign.es/wms-inspire/ign-base?",
+			{layers: 'IGNBaseTodo', projection: 'EPSG:4230'} );
+
+		map.addLayer(wmsLayer);
+
+		map.addControls(controls);
+
+		map.zoomToMaxExtent();
+
+	}
+
+	function getScale(){
+		alert("1/" + Math.round(map.getScale() * 100) / 100);
+	}
+	</script>
+</head>
+<body onload = "init()">
+
+	<h1>HOLA MUNDO</h1>
+	<div class="myPanel" id="panel"></div>
+	<div id="map"></div>
+
+</body>
+</html>
