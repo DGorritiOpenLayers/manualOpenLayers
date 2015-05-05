@@ -1,0 +1,28 @@
+<html>
+<head>
+	<script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+	<script type="text/javascript">
+
+	var map, wmsLayer;
+
+	function init(){
+
+		map = new OpenLayers.Map('map');
+		wmsLayer = new OpenLayers.Layer.WMS("Mapa Base",
+			"http://www.ign.es/wms-inspire/ign-base?",
+			{layers: 'IGNBaseTodo', projection: 'EPSG:4230'} );
+
+		map.addLayer(wmsLayer);
+		map.zoomToMaxExtent();
+
+	}
+
+	</script>
+</head>
+<body onload = "init()">
+
+	<h1>HOLA MUNDO</h1>
+	<div id="map" style="width: 600pxM height: 300px"></div>
+
+</body>
+</html>
