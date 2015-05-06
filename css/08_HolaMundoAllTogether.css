@@ -1,0 +1,32 @@
+#map { 
+	width: 700px; 
+	height: 450px; 
+	border: solid 1px #444444; 
+	font-family: Tahoma, sans-serif; 
+	font-size: 110%; 
+	font-weight: bold; 
+	color: #0033f0; 
+	text-align: center;
+}
+.myPanel {
+	position: relative; 
+	left: 103px; 
+	height: 39px; 
+	width: 39px; 
+	margin: 6px; 
+	border: solid 2px blue; 
+	background-color: #00d0ff; 
+}
+.activateDrawingItemInactive {
+	float: left; 
+	width: 32px; 
+	height:32px; 
+	margin: 2px; 
+	border: solid 1px #333333; 
+	border-bottom: solid 2px #333333; 
+	border-right: solid 2px #333333; 
+	background-color: #0069b4; 
+	background-repeat: no-repeat; 
+	background-position: center; 
+	cursor: pointer;
+}	
