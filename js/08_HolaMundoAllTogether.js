@@ -124,7 +124,7 @@ drawControls = {
 	drawRegularPolygon: new OpenLayers.Control.DrawFeature(dynamicRegularPolygonLayer,
 		OpenLayers.Handler.RegularPolygon, {
 			handlerOptions: {
-				sides: 4,
+				sides: 0,
 				irregular: false
 
 			}
@@ -300,7 +300,7 @@ function selectDrawingType(selectedItem){
 
 	for(key in drawControls) {
 		var control = drawControls[key];
-		if(drawingMode == key) {
+		if(drawingMode == key && bDrawing) {
 			control.activate();
 		} else {
 			control.deactivate();
