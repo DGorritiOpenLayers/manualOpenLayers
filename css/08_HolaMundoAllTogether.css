@@ -11,9 +11,15 @@
 #comboDrawingType{
 	position: relative; 
 	top: -45px;
-	left: 100px; 
+	left: 70px; 
 	margin: 6px; 
 	border: solid 2px blue; 
+}
+#pSidesNumber{
+	position: relative; 
+	top: -78px;
+	left: 220px; 
+	margin: 6px; 
 }
 .myPanel {
 	position: relative; 

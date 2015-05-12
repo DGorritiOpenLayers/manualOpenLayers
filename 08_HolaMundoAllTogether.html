@@ -9,13 +9,15 @@
 
 	<h2>ITZURUN TABERNA</h2>
 	<div id="panel" class="myPanel"></div>
-	<select id="comboDrawingType" disabled>
-		<option value="point">Point</option>
-		<option value="line">Line</option>
-		<option value="polyline">Polyline</option>
-		<option value="square">Square</option>
-		<option value="circle">Circle</option>
-	</select>
+		<select id="comboDrawingType" onchange="selectDrawingType(this)" disabled>
+			<option value="drawPoint">Point</option>
+			<option value="drawLine">Line</option>
+			<option value="drawPolygon">Polygon</option>
+			<option value="drawRegularPolygon">Regular Polygon</option>
+			<option value="drawFreeHand">Free Hand</option>
+		</select>
+		<p id="pSidesNumber">Number of Sides: <input id="inputSidesNumber" type="number" min ="2" onkeyup="sidesNumber(this)" onkeydown="setPreviousValue(this)" disabled></p>
+	
 	<div id="map"></div>
 	<input type="text" size="35" value="no set" id="coordinates"/>
 	<input type="text" size="30" id="txt3"/>

@@ -1,10 +1,11 @@
-var map, wmsLayer, marker, popup, vectorLayer, pointStyle, dynamicPointsLayer, panel;
+var map, wmsLayer, marker, popup, vectorLayer, pointStyle, panel;
+var dynamicPointsLayer, dynamicLineLayer, dynamicPolygonLayer, dynamicRegularPolygonLayer, dynamicFreeHandLayer;
 var icon, size, offset;
-var controls = [], layers = [], pointList = [], features = [], btnControls = [];
+var controls = [], layers = [], pointList = [], features = [], btnControls = [], drawControls;
 var center, centerLat = 43.298693, centerLong = -2.256916, startZoom = 15;
 var pointFeature, lineFeature, polygonFeature, boxFeature;
-var drawPoint;
 var bDrawing = false;
+var previousValue;
 
 function init(){
 
@@ -17,16 +18,17 @@ function init(){
 	addLayersToArray();
 	addFeaturesToArray();
 	addMarker();
-	addPointDrawer();
+	addDynamicDrawingLayers();
 
 	vectorLayer.addFeatures(features);
 	map.addLayers(layers);
 	map.addControls(controls);
+	addDrawControlsToMap();
 
 	map.setCenter(center,startZoom);
 
 	zoomEndHandler("zoomend");
-	drawPoint.deactivate();
+	//drawPoint.deactivate();
 
 	map.events.register("mousemove",map,mouseMoveHandler);
 	map.events.register("mouseover",map,mouseOverHandler);
@@ -48,18 +50,17 @@ function activateDrawing(){
 		backgroundImage = "url('https://cdn2.iconfinder.com/data/icons/color-svg-vector-icons-part-2/512/turn_on_off_power-128.png')";
 		color = "red";
 		disabled = true;
-		drawPoint.deactivate();
 	}else{
 		bDrawing = true;
 		backgroundImage = "url('http://png-3.findicons.com/files/icons/1620/crystal_project/128/exit.png')";
 		color = "green";
 		disabled = false;
-		drawPoint.activate();
 	}
 
 	button[0].style.backgroundImage = backgroundImage;
 	panel[0].style.backgroundColor = color;
 	combo.disabled = disabled;
+	combo.onchange();
 
 }
 
@@ -92,6 +93,50 @@ function addControlsToArray(){
 
 }
 
+function addDrawControlsToMap(){
+
+	/*This way of adding de controls is necessary in order to perform 
+	successfully the activation/deactivation of the controls*/
+	for(var key in drawControls){
+		map.addControl(drawControls[key]);
+	}
+	//map.addControls(drawControls);
+
+}
+
+function addDynamicDrawingLayers(){
+
+	var drawOptions = {
+		handlerOptions:{
+			freehand: true
+		}
+	};
+
+/*This way of adding de controls is necessary in order to perform 
+successfully the activation/deactivation of the controls*/
+drawControls = {
+
+	drawPoint: new OpenLayers.Control.DrawFeature(dynamicPointsLayer,OpenLayers.Handler.Point),
+	drawLine: new OpenLayers.Control.DrawFeature(dynamicLineLayer,
+		OpenLayers.Handler.Path),
+	drawPolygon: new OpenLayers.Control.DrawFeature(dynamicPolygonLayer,
+		OpenLayers.Handler.Polygon),
+	drawRegularPolygon: new OpenLayers.Control.DrawFeature(dynamicRegularPolygonLayer,
+		OpenLayers.Handler.RegularPolygon, {
+			handlerOptions: {
+				sides: 4,
+				irregular: false
+
+			}
+		}),
+	drawFreeHand: new OpenLayers.Control.DrawFeature(
+		dynamicFreeHandLayer,
+		OpenLayers.Handler.Path,
+		drawOptions)
+};
+
+}
+
 function addFeaturesToArray(){
 
 	createPointFeature();
@@ -116,11 +161,19 @@ function addLayersToArray(){
 
 	vectorLayer = new OpenLayers.Layer.Vector("Vector Features");
 
-	dynamicPointsLayer = new OpenLayers.Layer.Vector("Dynamic Points");
+	dynamicPointsLayer = new OpenLayers.Layer.Vector("Points");
+	dynamicLineLayer = new OpenLayers.Layer.Vector("Line");
+	dynamicPolygonLayer = new OpenLayers.Layer.Vector("Polygon");
+	dynamicRegularPolygonLayer = new OpenLayers.Layer.Vector("Regular Polygon");
+	dynamicFreeHandLayer = new OpenLayers.Layer.Vector('Free Hand');
 
 	layers.push(wmsLayer);
 	layers.push(vectorLayer);
 	layers.push(dynamicPointsLayer);
+	layers.push(dynamicLineLayer);
+	layers.push(dynamicPolygonLayer);
+	layers.push(dynamicRegularPolygonLayer);
+	layers.push(dynamicFreeHandLayer);
 	layers.push(marker);
 
 }
@@ -131,14 +184,6 @@ function addMarker(){
 	offset = new OpenLayers.Pixel(-(size.w/2),-size.h);
 	icon = new OpenLayers.Icon("https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/256/Map-Marker-Marker-Outside-Azure.png",size,offset);
 	marker.addMarker(new OpenLayers.Marker(center,icon));
-
-}
-
-function addPointDrawer(){
-
-	drawPoint = new OpenLayers.Control.DrawFeature(dynamicPointsLayer,OpenLayers.Handler.Point);
-
-	controls.push(drawPoint);
 
 }
 
@@ -200,6 +245,13 @@ function createPolygonFeature(){
 
 }
 
+function isNatural(n) {
+    n = n.toString(); // force the value incase it is not
+    var n1 = Math.abs(n),
+    n2 = parseInt(n, 10);
+    return !isNaN(n1) && n2 === n1 && n1.toString() === n;
+}
+
 function markerClick(evt) {
 
 	var position = this.events.getMousePosition(evt);
@@ -234,6 +286,29 @@ function mouseOverHandler(evt) {
 	document.getElementById("txt3").style.backgroundColor = "green";	
 }
 
+function selectDrawingType(selectedItem){
+
+	var element = document.getElementById("inputSidesNumber");
+	var drawingMode = selectedItem.value;
+
+	if (drawingMode == 'drawRegularPolygon'){
+		element.disabled = false;
+	}else{
+		element.value = "";
+		element.disabled = true;
+	};
+
+	for(key in drawControls) {
+		var control = drawControls[key];
+		if(drawingMode == key) {
+			control.activate();
+		} else {
+			control.deactivate();
+		}
+	}
+
+}
+
 function setPointStyle(){
 
 	pointStyle = OpenLayers.Util.extend({},OpenLayers.Feature.Vector.style['default']);
@@ -248,6 +323,25 @@ function setPointStyle(){
 	pointStyle.strokeWidth = 2;
 	pointStyle.strokeLinecap = "butt";
 	pointStyle.label = "Itzurun Taberna";
+
+}
+
+function setPreviousValue(textBox){
+
+	previousValue = textBox.value;
+
+}
+
+function sidesNumber(textBox){
+
+	var number = textBox.value;
+	drawRegularPolygon = drawControls['drawRegularPolygon'];
+	
+	if ((!isNatural(number) || number > 50) && number != ''){
+		textBox.value = previousValue;
+	}else{
+		drawRegularPolygon.handler.setOptions({sides: number});
+	};
 
 }
 
