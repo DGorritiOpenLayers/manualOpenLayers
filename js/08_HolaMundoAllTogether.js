@@ -2,7 +2,7 @@ var map, wmsLayer, marker, popup, vectorLayer, pointStyle, dynamicPointsLayer, p
 var icon, size, offset;
 var controls = [], layers = [], pointList = [], features = [], btnControls = [];
 var center, centerLat = 43.298693, centerLong = -2.256916, startZoom = 15;
-var pointFeature, lineFeature, polygonFeature;
+var pointFeature, lineFeature, polygonFeature, boxFeature;
 var drawPoint;
 var bDrawing = false;
 
@@ -36,6 +36,35 @@ function init(){
 
 }
 
+function activateDrawing(){
+
+	if (bDrawing){
+		bDrawing = false;
+		drawPoint.deactivate();
+	}else{
+		bDrawing = true;
+		drawPoint.activate();
+	}
+
+}
+
+function addButtons(){
+
+	var el = OpenLayers.Util.getElement('panel');
+
+	panel = new OpenLayers.Control.Panel({'div':el});
+
+	btnActivateDrawing = new OpenLayers.Control.Button({
+		displayClass: "activateDrawing", 
+		trigger: activateDrawing
+	});
+
+	btnControls.push(btnActivateDrawing);
+
+	panel.addControls(btnActivateDrawing);
+
+}
+
 function addControlsToArray(){
 
 	controls.push(new OpenLayers.Control.Attribution());
@@ -45,6 +74,20 @@ function addControlsToArray(){
 	controls.push(new OpenLayers.Control.Scale());
 	controls.push(new OpenLayers.Control.LayerSwitcher());
 	controls.push(panel);
+
+}
+
+function addFeaturesToArray(){
+
+	createPointFeature();
+	createLineFeature();
+	createPolygonFeature();
+	createBoxFeature();
+
+	features.push(pointFeature);
+	features.push(lineFeature);
+	features.push(polygonFeature);
+	features.push(boxFeature);
 
 }
 
@@ -76,85 +119,26 @@ function addMarker(){
 
 }
 
-function addFeaturesToArray(){
-
-	createPointFeature();
-	createLineFeature();
-	createPolygonFeature();
-
-	features.push(pointFeature);
-	features.push(lineFeature);
-	features.push(polygonFeature);
-
-}
-
 function addPointDrawer(){
 
 	drawPoint = new OpenLayers.Control.DrawFeature(dynamicPointsLayer,OpenLayers.Handler.Point);
-	drawPoint.featureAdded = featureAdded;
+
 	controls.push(drawPoint);
 
 }
 
-function addButtons(){
+function createBoxFeature(){
 
-	var el = OpenLayers.Util.getElement('panel');
+	var left = centerLong - 0.01;
+	var bottom = centerLat - 0.002;
+	var right = left + 0.002;
+	var top = bottom + 0.002;
 
-	panel = new OpenLayers.Control.Panel({'div':el});
+	var box_extent = [left,bottom,right,top];
 
-	btnActivateDrawing = new OpenLayers.Control.Button({
-		displayClass: "activateDrawing", 
-		trigger: activateDrawing
-	});
+	var bounds = new OpenLayers.Bounds.fromArray(box_extent);
+	boxFeature = new OpenLayers.Feature.Vector(bounds.toGeometry());
 
-	btnControls.push(btnActivateDrawing);
-
-	panel.addControls(btnActivateDrawing);
-
-}
-
-function mouseMoveHandler(evt) {
-	var el = document.getElementById("coordinates");
-	var pos=this.events.getMousePosition(evt);
-	el.value=map.getLonLatFromPixel(pos);
-}
-
-function mouseOverHandler(evt) {
-	document.getElementById("txt3").style.backgroundColor = "green";	
-}
-
-function mouseOutHandler(evt) {
-	document.getElementById("txt3").style.backgroundColor = "red";
-}
-
-function markerClick(evt) {
-
-	var position = this.events.getMousePosition(evt);
-	var lonlat = evt.object.lonlat;
-	if(popup == null){
-		popup = new OpenLayers.Popup("popup", lonlat,
-			new OpenLayers.Size(260,225),
-			"<span style='color: black; font-weight: bold;'>Itzurun Taberna</span><br/>"+
-			"<iframe width='260' height='190' src='https://www.youtube.com/embed/AqrKHsgU374' frameborder='0' allowfullscreen></iframe>",
-			true);
-		popup.setBackgroundColor("green");
-		popup.setBorder("1px solid green");
-		map.addPopup(popup);
-	}else{
-		popup.toggle();
-	}
-	OpenLayers.Event.stop(evt);
-}
-
-function zoomEndHandler(evt){
-	var el = document.getElementById("scale");
-	el.value = "SCALE: 1/" + (Math.round(map.getScale() * 1000) / 1000);
-}
-
-function createPointFeature(){
-	setPointStyle();
-	var point = new OpenLayers.Geometry.Point(centerLong,centerLat);
-	pointFeature = new OpenLayers.Feature.Vector(point,null,pointStyle);
 }
 
 function createLineFeature(){
@@ -169,6 +153,14 @@ function createLineFeature(){
 	}
 	lineFeature = new OpenLayers.Feature.Vector(
 		new OpenLayers.Geometry.LineString(pointList));
+
+}
+
+function createPointFeature(){
+
+	setPointStyle();
+	var point = new OpenLayers.Geometry.Point(centerLong,centerLat);
+	pointFeature = new OpenLayers.Feature.Vector(point,null,pointStyle);
 
 }
 
@@ -193,6 +185,40 @@ function createPolygonFeature(){
 
 }
 
+function markerClick(evt) {
+
+	var position = this.events.getMousePosition(evt);
+	var lonlat = evt.object.lonlat;
+	if(popup == null){
+		popup = new OpenLayers.Popup("popup", lonlat,
+			new OpenLayers.Size(260,225),
+			"<span style='color: black; font-weight: bold;'>Itzurun Taberna</span><br/>"+
+			"<iframe width='260' height='190' src='https://www.youtube.com/embed/AqrKHsgU374' frameborder='0' allowfullscreen></iframe>",
+			true);
+		popup.setBackgroundColor("green");
+		popup.setBorder("1px solid green");
+		map.addPopup(popup);
+	}else{
+		popup.toggle();
+	}
+	OpenLayers.Event.stop(evt);
+
+}
+
+function mouseMoveHandler(evt) {
+	var el = document.getElementById("coordinates");
+	var pos=this.events.getMousePosition(evt);
+	el.value=map.getLonLatFromPixel(pos);
+}
+
+function mouseOutHandler(evt) {
+	document.getElementById("txt3").style.backgroundColor = "red";
+}
+
+function mouseOverHandler(evt) {
+	document.getElementById("txt3").style.backgroundColor = "green";	
+}
+
 function setPointStyle(){
 
 	pointStyle = OpenLayers.Util.extend({},OpenLayers.Feature.Vector.style['default']);
@@ -210,14 +236,7 @@ function setPointStyle(){
 
 }
 
-function activateDrawing(){
-	
-	if (bDrawing){
-		bDrawing = false;
-		drawPoint.deactivate();
-	}else{
-		bDrawing = true;
-		drawPoint.activate();
-	}
-	
+function zoomEndHandler(evt){
+	var el = document.getElementById("scale");
+	el.value = "SCALE: 1/" + (Math.round(map.getScale() * 1000) / 1000);
 }
