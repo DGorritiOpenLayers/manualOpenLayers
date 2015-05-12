@@ -38,13 +38,28 @@ function init(){
 
 function activateDrawing(){
 
+	var color, backgroundImage, disabled;
+	var button = document.getElementsByClassName("activateDrawingItemInactive");
+	var panel = document.getElementsByClassName("myPanel");
+	var combo = document.getElementById("comboDrawingType");
+
 	if (bDrawing){
 		bDrawing = false;
+		backgroundImage = "url('https://cdn2.iconfinder.com/data/icons/color-svg-vector-icons-part-2/512/turn_on_off_power-128.png')";
+		color = "red";
+		disabled = true;
 		drawPoint.deactivate();
 	}else{
 		bDrawing = true;
+		backgroundImage = "url('http://png-3.findicons.com/files/icons/1620/crystal_project/128/exit.png')";
+		color = "green";
+		disabled = false;
 		drawPoint.activate();
 	}
+
+	button[0].style.backgroundImage = backgroundImage;
+	panel[0].style.backgroundColor = color;
+	combo.disabled = disabled;
 
 }
 
